@@ -51,3 +51,16 @@ QLabel#advice_label {
     font-style: italic;
     padding-top: 20px;
 }
+
+QPushButton#temp_switch_btn {
+    font-size: 25px;
+    font-weight: bold;
+    background-color: #3a3a3a;
+    color: white;
+    border-radius: 6px;
+    padding: 6px 10px;
+    min-width: 80px;
+    max-width: 80px;
+    min-height: 40px;
+    max-height: 40px;
+}

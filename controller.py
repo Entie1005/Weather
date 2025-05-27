@@ -36,7 +36,14 @@ class WeatherController:
         advice = result["advice"]
 
         self.view.temp_label.setStyleSheet("font-size: 75px;")
-        self.view.temp_label.setText(f"{temp:.0f}°C")
+
+        # Check if temperature should be displayed in Fahrenheit
+        if self.view.is_celsius:
+            self.view.temp_label.setText(f"{temp:.0f}°C")
+        else:
+            fahrenheit_temp = (temp * 9 / 5) + 32
+            self.view.temp_label.setText(f"{fahrenheit_temp:.0f}°F")
+
         self.view.emoji_label.setText(self.get_weather_emoji(weather_id))
         self.view.discription_label.setText(string.capwords(description))
         self.view.set_clothing_advice(advice)

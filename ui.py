@@ -16,6 +16,8 @@ class WeatherUI(QWidget):
         self.discription_label = QLabel(self)
         self.advice_label = QLabel(self)
         self.toggle_dark_btn = QPushButton("🌓 Dark Mode", self)
+        self.temp_switch_btn = QPushButton("°C", self)
+        self.is_celsius = True
 
         self.dark_mode_enabled = False
         self.exit_app = False
@@ -56,8 +58,16 @@ class WeatherUI(QWidget):
         vbox.addWidget(self.discription_label)
         vbox.addWidget(self.advice_label)
 
+        temp_switch_layout = QHBoxLayout()
+        temp_switch_layout.addStretch()
+        temp_switch_layout.addWidget(self.temp_switch_btn)
+
+        vbox.addLayout(hbox)
+        vbox.addLayout(temp_switch_layout)
+
         self.setLayout(vbox)
         self.toggle_dark_btn.clicked.connect(self.toggle_dark_mode)
+        self.temp_switch_btn.clicked.connect(self.toggle_temperature_unit)
 
         # Align
         self.city_label.setAlignment(Qt.AlignCenter)
@@ -77,6 +87,7 @@ class WeatherUI(QWidget):
         self.advice_label.setWordWrap(True)
         self.advice_label.setObjectName("advice_label")
         self.toggle_dark_btn.setObjectName("toggle_dark_btn")
+        self.temp_switch_btn.setObjectName("temp_switch_btn")
 
         # CSS
         self.setStyleSheet("""
@@ -110,6 +121,14 @@ class WeatherUI(QWidget):
                 font-size: 25px;
                 font-style: italic;
                 padding-top: 20px;
+            }
+            QPushButton#temp_switch_btn{
+                font-size: 25px;
+                font-weight: bold;
+                min-width: 80px;
+                max-width: 80px;
+                min-height: 40px;
+                max-height: 40px;
             }
         """)
         self.setMinimumSize(800, 700)
@@ -177,6 +196,31 @@ class WeatherUI(QWidget):
     def exit_app_completely(self):
         self.exit_app = True
         self.close()
+
+    def toggle_temperature_unit(self):
+        """Toggle between Celsius and Fahrenheit"""
+        self.is_celsius = not self.is_celsius
+        if self.is_celsius:
+            self.temp_switch_btn.setText("°C")
+        else:
+            self.temp_switch_btn.setText("°F")
+
+        # If there's current temperature data, update the display
+        current_temp_text = self.temp_label.text()
+        if "°" in current_temp_text and current_temp_text != "":
+            # Extract temperature value and convert
+            try:
+                temp_value = float(current_temp_text.replace("°C", "").replace("°F", "").strip())
+                if self.is_celsius:
+                    # Convert from Fahrenheit to Celsius
+                    celsius_temp = (temp_value - 32) * 5 / 9
+                    self.temp_label.setText(f"{celsius_temp:.0f}°C")
+                else:
+                    # Convert from Celsius to Fahrenheit
+                    fahrenheit_temp = (temp_value * 9 / 5) + 32
+                    self.temp_label.setText(f"{fahrenheit_temp:.0f}°F")
+            except ValueError:
+                pass  # If conversion fails, do nothing
 '''
     def toggle_ai(self):
         """Kích hoạt/tắt AI khi checkbox thay đổi."""
