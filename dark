@@ -1,0 +1,53 @@
+QWidget {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+QLabel, QPushButton {
+    font-family: calibri;
+    color: white;
+}
+
+QLabel#city_label {
+    font-size: 40px;
+    font-style: italic;
+}
+
+QLineEdit#city_input {
+    font-size: 40px;
+    background-color: #2c2c2c;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QPushButton#weather_button, QPushButton#toggle_dark_btn {
+    font-size: 30px;
+    font-weight: bold;
+    background-color: #3a3a3a;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+QLabel#temp_label {
+    font-size: 75px;
+}
+
+QLabel#emoji_label {
+    font-size: 100px;
+    font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+QLabel#discription_label {
+    font-size: 50px;
+}
+
+QLabel#advice_label {
+    font-size: 25px;
+    font-style: italic;
+    padding-top: 20px;
+}
