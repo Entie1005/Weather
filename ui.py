@@ -16,7 +16,7 @@ class WeatherUI(QWidget):
         self.emoji_label = QLabel(self)
         self.discription_label = QLabel(self)
         self.advice_label = QLabel(self)
-        self.toggle_dark_btn = QPushButton("🌓 Dark Mode", self)
+        self.toggle_dark_btn = QPushButton("🌓", self)
         self.temp_switch_btn = QPushButton("°C", self)
         self.is_celsius = True
 
@@ -35,21 +35,21 @@ class WeatherUI(QWidget):
                             Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
 
         self.emoji_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.emoji_label.setMinimumHeight(100)  # Reduced from 180
+        self.emoji_label.setMinimumHeight(50)  # Much smaller emoji area
 
         vbox = QVBoxLayout()
-        vbox.setContentsMargins(10, 15, 10, 15)  # Reduced margins
-        vbox.setSpacing(5)  # Add consistent spacing
+        vbox.setContentsMargins(8, 8, 8, 8)  # Smaller margins for widget
+        vbox.setSpacing(3)  # Tighter spacing
 
-        vbox.addWidget(self.city_label)
+        # Top row with city input and dark mode button
+        top_row = QHBoxLayout()
+        top_row.addWidget(self.city_label)
+        top_row.addStretch()
+        top_row.addWidget(self.toggle_dark_btn)
+        vbox.addLayout(top_row)
+
         vbox.addWidget(self.city_input)
         vbox.addWidget(self.weather_button)
-
-        hbox = QHBoxLayout()
-        hbox.addStretch()
-        hbox.addWidget(self.toggle_dark_btn)
-        hbox.addStretch()
-        vbox.addLayout(hbox)
 
         vbox.addWidget(self.temp_label)
         vbox.addWidget(self.emoji_label)
@@ -85,67 +85,108 @@ class WeatherUI(QWidget):
         self.toggle_dark_btn.setObjectName("toggle_dark_btn")
         self.temp_switch_btn.setObjectName("temp_switch_btn")
 
-        # Responsive CSS with smaller font sizes
+        # Enhanced responsive CSS with smaller widget sizing
         self.setStyleSheet("""
             QLabel, QPushButton{
                 font-family: calibri;
             }
             QLabel#city_label{
-                font-size: 24px;
+                font-size: 14px;
                 font-style: italic;
+                font-weight: 500;
             }
             QLineEdit#city_input{
-                font-size: 20px;
-                padding: 5px;
-                border-radius: 4px;
+                font-size: 14px;
+                padding: 4px;
+                border-radius: 3px;
                 border: 1px solid #ccc;
+                max-height: 24px;
             }
             QPushButton#weather_button{
-                font-size: 18px;
+                font-size: 12px;
                 font-weight: bold;
-                padding: 8px;
+                padding: 4px;
                 border-radius: 4px;
+                background-color: #007ACC;
+                color: white;
+                border: none;
+                max-height: 24px;
+            }
+            QPushButton#weather_button:hover{
+                background-color: #005A9E;
+            }
+            QPushButton#weather_button:pressed{
+                background-color: #004080;
+            }
+            QPushButton#weather_button:disabled{
+                background-color: #CCE4F0;
+                color: #888;
             }
             QPushButton#toggle_dark_btn{
-                font-size: 14px;
+                font-size: 10px;
                 font-weight: bold;
-                padding: 6px 10px;
-                border-radius: 4px;
+                padding: 2px 6px;
+                border-radius: 8px;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                    stop:0 #4A4A4A, stop:1 #2E2E2E);
+                color: white;
+                border: 1px solid #666;
+                max-height: 16px;
+                max-width: 50px;
+            }
+            QPushButton#toggle_dark_btn:hover{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                    stop:0 #5A5A5A, stop:1 #3E3E3E);
+                border: 1px solid #777;
+            }
+            QPushButton#toggle_dark_btn:pressed{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                    stop:0 #2E2E2E, stop:1 #1A1A1A);
             }
             QLabel#temp_label{
-                font-size: 48px;
+                font-size: 32px;
                 font-weight: bold;
             }
             QLabel#emoji_label{
-                font-size: 60px;
+                font-size: 40px;
                 font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
-                padding-top: 10px;
-                padding-bottom: 10px;
+                padding-top: 5px;
+                padding-bottom: 5px;
             }
             QLabel#discription_label{
-                font-size: 20px;
+                font-size: 14px;
                 font-weight: 500;
             }
             QLabel#advice_label {
-                font-size: 16px;
+                font-size: 11px;
                 font-style: italic;
-                padding-top: 10px;
+                padding-top: 5px;
                 color: #555;
             }
             QPushButton#temp_switch_btn{
-                font-size: 16px;
+                font-size: 10px;
                 font-weight: bold;
-                min-width: 60px;
-                max-width: 60px;
-                min-height: 30px;
-                max-height: 30px;
-                border-radius: 4px;
+                min-width: 35px;
+                max-width: 35px;
+                min-height: 20px;
+                max-height: 20px;
+                border-radius: 10px;
+                background-color: #007ACC;
+                color: white;
+                border: none;
+            }
+            QPushButton#temp_switch_btn:hover{
+                background-color: #005A9E;
+            }
+            QPushButton#temp_switch_btn:pressed{
+                background-color: #004080;
             }
         """)
 
-        # Set size constraints - similar to Windows 11 Task Manager
-        self.setMinimumSize(320, 280)  # Minimum usable size
-        self.setMaximumSize(800, 600)  # Maximum size (similar to Task Manager)
+        # Set size constraints for a small widget
+        self.setMinimumSize(280, 220)  # Much smaller minimum size
+        self.setMaximumSize(350, 300)  # Smaller maximum size for widget-like feel
+        self.setFixedSize(300, 250)  # Fixed size for consistent widget appearance
 
         # Enable resizing
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
