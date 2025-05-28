@@ -30,16 +30,15 @@ class WeatherUI(QWidget):
     def init_ui(self):
         self.setWindowTitle("Weather App")
 
-        # Make window resizable by enabling resize grips
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint |
-                            Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+        # Enable window resizing by mouse dragging
+        self.setWindowFlags(Qt.Window)
 
         self.emoji_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.emoji_label.setMinimumHeight(50)  # Much smaller emoji area
+        self.emoji_label.setMinimumHeight(30)
 
         vbox = QVBoxLayout()
-        vbox.setContentsMargins(8, 8, 8, 8)  # Smaller margins for widget
-        vbox.setSpacing(3)  # Tighter spacing
+        vbox.setContentsMargins(8, 8, 8, 8)
+        vbox.setSpacing(3)
 
         # Top row with city input and dark mode button
         top_row = QHBoxLayout()
@@ -85,32 +84,32 @@ class WeatherUI(QWidget):
         self.toggle_dark_btn.setObjectName("toggle_dark_btn")
         self.temp_switch_btn.setObjectName("temp_switch_btn")
 
-        # Enhanced responsive CSS with smaller widget sizing
+        # Widget-sized styling
         self.setStyleSheet("""
             QLabel, QPushButton{
                 font-family: calibri;
             }
             QLabel#city_label{
-                font-size: 14px;
+                font-size: 12px;
                 font-style: italic;
                 font-weight: 500;
             }
             QLineEdit#city_input{
-                font-size: 14px;
-                padding: 4px;
+                font-size: 12px;
+                padding: 3px;
                 border-radius: 3px;
                 border: 1px solid #ccc;
-                max-height: 24px;
+                max-height: 20px;
             }
             QPushButton#weather_button{
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: bold;
-                padding: 4px;
+                padding: 3px;
                 border-radius: 4px;
                 background-color: #007ACC;
                 color: white;
                 border: none;
-                max-height: 24px;
+                max-height: 20px;
             }
             QPushButton#weather_button:hover{
                 background-color: #005A9E;
@@ -123,16 +122,16 @@ class WeatherUI(QWidget):
                 color: #888;
             }
             QPushButton#toggle_dark_btn{
-                font-size: 10px;
+                font-size: 8px;
                 font-weight: bold;
-                padding: 2px 6px;
-                border-radius: 8px;
+                padding: 2px 4px;
+                border-radius: 6px;
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
                     stop:0 #4A4A4A, stop:1 #2E2E2E);
                 color: white;
                 border: 1px solid #666;
-                max-height: 16px;
-                max-width: 50px;
+                max-height: 14px;
+                max-width: 40px;
             }
             QPushButton#toggle_dark_btn:hover{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
@@ -144,33 +143,33 @@ class WeatherUI(QWidget):
                     stop:0 #2E2E2E, stop:1 #1A1A1A);
             }
             QLabel#temp_label{
-                font-size: 32px;
+                font-size: 16px;
                 font-weight: bold;
             }
             QLabel#emoji_label{
-                font-size: 40px;
+                font-size: 56px;
                 font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding-top: 3px;
+                padding-bottom: 3px;
             }
             QLabel#discription_label{
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: 500;
             }
             QLabel#advice_label {
-                font-size: 11px;
+                font-size: 9px;
                 font-style: italic;
-                padding-top: 5px;
+                padding-top: 3px;
                 color: #555;
             }
             QPushButton#temp_switch_btn{
-                font-size: 10px;
+                font-size: 8px;
                 font-weight: bold;
-                min-width: 35px;
-                max-width: 35px;
-                min-height: 20px;
-                max-height: 20px;
-                border-radius: 10px;
+                min-width: 28px;
+                max-width: 28px;
+                min-height: 16px;
+                max-height: 16px;
+                border-radius: 8px;
                 background-color: #007ACC;
                 color: white;
                 border: none;
@@ -183,10 +182,9 @@ class WeatherUI(QWidget):
             }
         """)
 
-        # Set size constraints for a small widget
-        self.setMinimumSize(280, 220)  # Much smaller minimum size
-        self.setMaximumSize(350, 300)  # Smaller maximum size for widget-like feel
-        self.setFixedSize(300, 250)  # Fixed size for consistent widget appearance
+        # Set minimum size but allow resizing
+        self.setMinimumSize(220, 180)
+        self.resize(250, 200)  # Default widget size
 
         # Enable resizing
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -195,19 +193,110 @@ class WeatherUI(QWidget):
         self.advice_label.setText(advice)
 
     def enable_dark_mode(self):
-        try:
-            with open(r"C:\Users\Dell\PycharmProjects\Weather\dark", "r", encoding="utf-8") as file:
-                dark_css = file.read()
-                # Modify dark CSS for smaller sizes
-                dark_css = dark_css.replace("font-size: 40px;", "font-size: 24px;")  # city_label
-                dark_css = dark_css.replace("font-size: 75px;", "font-size: 48px;")  # temp_label
-                dark_css = dark_css.replace("font-size: 100px;", "font-size: 60px;")  # emoji_label
-                dark_css = dark_css.replace("font-size: 50px;", "font-size: 20px;")  # description_label
-                dark_css = dark_css.replace("font-size: 25px;", "font-size: 16px;")  # advice_label
-                dark_css = dark_css.replace("font-size: 30px;", "font-size: 18px;")  # weather_button
-                self.setStyleSheet(dark_css)
-        except FileNotFoundError:
-            print("⚠️ Không tìm thấy file dark.css!")
+        # Dark mode with same layout and sizing as light mode
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #1e1e1e;
+                color: white;
+            }
+            QLabel, QPushButton{
+                font-family: calibri;
+                color: white;
+            }
+            QLabel#city_label{
+                font-size: 12px;
+                font-style: italic;
+                font-weight: 500;
+                color: white;
+            }
+            QLineEdit#city_input{
+                font-size: 12px;
+                padding: 3px;
+                border-radius: 3px;
+                background-color: #2c2c2c;
+                color: white;
+                border: 1px solid #555;
+                max-height: 20px;
+            }
+            QPushButton#weather_button{
+                font-size: 10px;
+                font-weight: bold;
+                padding: 3px;
+                border-radius: 4px;
+                background-color: #3a3a3a;
+                color: white;
+                border: none;
+                max-height: 20px;
+            }
+            QPushButton#weather_button:hover{
+                background-color: #4a4a4a;
+            }
+            QPushButton#weather_button:pressed{
+                background-color: #2a2a2a;
+            }
+            QPushButton#weather_button:disabled{
+                background-color: #555;
+                color: #888;
+            }
+            QPushButton#toggle_dark_btn{
+                font-size: 8px;
+                font-weight: bold;
+                padding: 2px 4px;
+                border-radius: 6px;
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                max-height: 14px;
+                max-width: 40px;
+            }
+            QPushButton#toggle_dark_btn:hover{
+                background-color: #4a4a4a;
+                border: 1px solid #666;
+            }
+            QPushButton#toggle_dark_btn:pressed{
+                background-color: #2a2a2a;
+            }
+            QLabel#temp_label{
+                font-size: 16px;
+                font-weight: bold;
+                color: white;
+            }
+            QLabel#emoji_label{
+                font-size: 56px;
+                font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
+            QLabel#discription_label{
+                font-size: 13px;
+                font-weight: 500;
+                color: white;
+            }
+            QLabel#advice_label {
+                font-size: 9px;
+                font-style: italic;
+                padding-top: 3px;
+                color: #ccc;
+            }
+            QPushButton#temp_switch_btn{
+                font-size: 8px;
+                font-weight: bold;
+                min-width: 28px;
+                max-width: 28px;
+                min-height: 16px;
+                max-height: 16px;
+                border-radius: 8px;
+                background-color: #3a3a3a;
+                color: white;
+                border: none;
+            }
+            QPushButton#temp_switch_btn:hover{
+                background-color: #4a4a4a;
+            }
+            QPushButton#temp_switch_btn:pressed{
+                background-color: #2a2a2a;
+            }
+        """)
 
     def toggle_dark_mode(self):
         if self.dark_mode_enabled:
@@ -247,7 +336,7 @@ class WeatherUI(QWidget):
 
     def closeEvent(self, event):
         if self.exit_app:
-            event.accept()  # Cho phép thoát thật
+            event.accept()
         else:
             event.ignore()
             self.hide()
