@@ -1,33 +1,105 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from model import WeatherModel
 import string
 import requests
+from ai import preload_ai_model, is_ai_ready
+
+
+class WeatherWorker(QThread):
+    """Worker thread for fetching weather data"""
+    weather_fetched = pyqtSignal(dict)
+    error_occurred = pyqtSignal(str, str)  # error_type, message
+
+    def __init__(self, city_name):
+        super().__init__()
+        self.city_name = city_name
+        self.model = WeatherModel()
+
+    def run(self):
+        try:
+            data = self.model.get_weather_data(self.city_name)
+            result = self.model.analyze_weather(data)
+            self.weather_fetched.emit(result)
+        except ValueError:
+            self.error_occurred.emit("value_error", "Không tìm thấy thành phố hoặc phản hồi không hợp lệ.")
+        except requests.exceptions.HTTPError as http_error:
+            self.error_occurred.emit("http_error", str(http_error))
+        except requests.exceptions.ConnectionError:
+            self.error_occurred.emit("connection_error", "Lỗi kết nối!\nVui lòng kiểm tra kết nối Internet.")
+        except requests.exceptions.Timeout:
+            self.error_occurred.emit("timeout_error", "Lỗi thời gian chờ.\nYêu cầu quá thời gian cho phép.")
+        except requests.exceptions.TooManyRedirects:
+            self.error_occurred.emit("redirect_error", "Quá nhiều chuyển hướng. Kiểm tra URL.")
+        except requests.exceptions.RequestException as req_error:
+            self.error_occurred.emit("request_error", f"Lỗi yêu cầu:\n{req_error}")
+
 
 class WeatherController:
     def __init__(self, view):
         self.view = view
-        self.model = WeatherModel()
+        self.worker = None
 
+        # Connect signals
         self.view.weather_button.clicked.connect(self.handle_weather_request)
 
+        # Start preloading AI model in background
+        preload_ai_model()
+
     def handle_weather_request(self):
-        city_name = self.view.city_input.text()
-        try:
-            data = self.model.get_weather_data(city_name)
-            result = self.model.analyze_weather(data)
-            self.update_view(result)
-        except ValueError:
-            self.display_error("Không tìm thấy thành phố hoặc phản hồi không hợp lệ.")
-        except requests.exceptions.HTTPError as http_error:
-            self.handle_http_error(http_error)
-        except requests.exceptions.ConnectionError:
-            self.display_error("Lỗi kết nối!\nVui lòng kiểm tra kết nối Internet.")
-        except requests.exceptions.Timeout:
-            self.display_error("Lỗi thời gian chờ.\nYêu cầu quá thời gian cho phép.")
-        except requests.exceptions.TooManyRedirects:
-            self.display_error("Quá nhiều chuyển hướng. Kiểm tra URL.")
-        except requests.exceptions.RequestException as req_error:
-            self.display_error(f"Lỗi yêu cầu:\n{req_error}")
+        city_name = self.view.city_input.text().strip()
+        if not city_name:
+            self.display_error("Vui lòng nhập tên thành phố.")
+            return
+
+        # Disable button and show loading
+        self.view.weather_button.setEnabled(False)
+        self.view.weather_button.setText("Đang tải...")
+        self.view.temp_label.setText("Đang lấy dữ liệu thời tiết...")
+        self.view.temp_label.setStyleSheet("font-size: 30px;")
+        self.view.emoji_label.setText("⏳")
+        self.view.discription_label.setText("")
+        self.view.advice_label.setText("")
+
+        # Create and start worker thread
+        self.worker = WeatherWorker(city_name)
+        self.worker.weather_fetched.connect(self.on_weather_fetched)
+        self.worker.error_occurred.connect(self.on_error_occurred)
+        self.worker.finished.connect(self.on_worker_finished)
+        self.worker.start()
+
+    def on_weather_fetched(self, result):
+        """Handle successful weather data fetch"""
+        self.update_view(result)
+
+    def on_error_occurred(self, error_type, message):
+        """Handle errors from worker thread"""
+        if error_type == "http_error":
+            # Parse HTTP error from message
+            try:
+                if "401" in message:
+                    self.display_error("API key không hợp lệ.")
+                elif "404" in message:
+                    self.display_error("Không tìm thấy thành phố!")
+                elif "500" in message:
+                    self.display_error("Lỗi máy chủ nội bộ.")
+                elif "502" in message:
+                    self.display_error("Bad Gateway.")
+                elif "503" in message:
+                    self.display_error("Dịch vụ không khả dụng.")
+                elif "504" in message:
+                    self.display_error("Gateway Timeout.")
+                else:
+                    self.display_error(f"Lỗi HTTP: {message}")
+            except:
+                self.display_error("Lỗi kết nối với máy chủ.")
+        else:
+            self.display_error(message)
+
+    def on_worker_finished(self):
+        """Re-enable UI after worker finishes"""
+        self.view.weather_button.setEnabled(True)
+        self.view.weather_button.setText("OK")
+        self.worker = None
 
     def update_view(self, result):
         temp = result["temp_c"]
@@ -46,35 +118,19 @@ class WeatherController:
 
         self.view.emoji_label.setText(self.get_weather_emoji(weather_id))
         self.view.discription_label.setText(string.capwords(description))
-        self.view.set_clothing_advice(advice)
+
+        # Show AI status if available
+        if is_ai_ready():
+            self.view.set_clothing_advice(f"🤖 {advice}")
+        else:
+            self.view.set_clothing_advice(advice)
 
     def display_error(self, message):
         self.view.temp_label.setStyleSheet("font-size: 30px;")
         self.view.temp_label.setText(message)
-        self.view.emoji_label.setText("")
+        self.view.emoji_label.setText("❌")
         self.view.discription_label.setText("")
         self.view.advice_label.clear()
-
-    def handle_http_error(self, http_error):
-        match http_error.response.status_code:
-            case 400:
-                self.display_error("Yêu cầu không hợp lệ.")
-            case 401:
-                self.display_error("API key không hợp lệ.")
-            case 403:
-                self.display_error("Truy cập bị từ chối!")
-            case 404:
-                self.display_error("Không tìm thấy thành phố!")
-            case 500:
-                self.display_error("Lỗi máy chủ nội bộ.")
-            case 502:
-                self.display_error("Bad Gateway.")
-            case 503:
-                self.display_error("Dịch vụ không khả dụng.")
-            case 504:
-                self.display_error("Gateway Timeout.")
-            case _:
-                self.display_error(f"Lỗi HTTP không xác định: {http_error}")
 
     @staticmethod
     def get_weather_emoji(weather_id):
