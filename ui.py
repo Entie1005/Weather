@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction
 
+
 class WeatherUI(QWidget):
     def __init__(self):
         super().__init__()
@@ -22,15 +23,6 @@ class WeatherUI(QWidget):
         self.dark_mode_enabled = False
         self.exit_app = False
 
-        '''
-        self.ai_checkbox = QCheckBox("Bật AI", self)
-        self.ai_checkbox.stateChanged.connect(self.toggle_ai)
-        
-        self.ai_enabled = False
-
-        self.ai_model = None
-        '''
-
         self.init_ui()
         self.init_tray_icon()
         self.default_stylesheet = self.styleSheet()
@@ -38,21 +30,27 @@ class WeatherUI(QWidget):
     def init_ui(self):
         self.setWindowTitle("Weather App")
 
+        # Make window resizable by enabling resize grips
+        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint |
+                            Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+
         self.emoji_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.emoji_label.setMinimumHeight(180)
+        self.emoji_label.setMinimumHeight(100)  # Reduced from 180
 
         vbox = QVBoxLayout()
-        vbox.setContentsMargins(10, 20, 10, 20)
+        vbox.setContentsMargins(10, 15, 10, 15)  # Reduced margins
+        vbox.setSpacing(5)  # Add consistent spacing
 
         vbox.addWidget(self.city_label)
         vbox.addWidget(self.city_input)
         vbox.addWidget(self.weather_button)
-        #vbox.addWidget(self.ai_checkbox)
+
         hbox = QHBoxLayout()
         hbox.addStretch()
         hbox.addWidget(self.toggle_dark_btn)
         hbox.addStretch()
         vbox.addLayout(hbox)
+
         vbox.addWidget(self.temp_label)
         vbox.addWidget(self.emoji_label)
         vbox.addWidget(self.discription_label)
@@ -61,8 +59,6 @@ class WeatherUI(QWidget):
         temp_switch_layout = QHBoxLayout()
         temp_switch_layout.addStretch()
         temp_switch_layout.addWidget(self.temp_switch_btn)
-
-        vbox.addLayout(hbox)
         vbox.addLayout(temp_switch_layout)
 
         self.setLayout(vbox)
@@ -89,50 +85,70 @@ class WeatherUI(QWidget):
         self.toggle_dark_btn.setObjectName("toggle_dark_btn")
         self.temp_switch_btn.setObjectName("temp_switch_btn")
 
-        # CSS
+        # Responsive CSS with smaller font sizes
         self.setStyleSheet("""
             QLabel, QPushButton{
                 font-family: calibri;
             }
             QLabel#city_label{
-                font-size: 40px;
+                font-size: 24px;
                 font-style: italic;
             }
             QLineEdit#city_input{
-                font-size: 40px;
+                font-size: 20px;
+                padding: 5px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
             }
             QPushButton#weather_button{
-                font-size: 30px;
+                font-size: 18px;
                 font-weight: bold;
+                padding: 8px;
+                border-radius: 4px;
+            }
+            QPushButton#toggle_dark_btn{
+                font-size: 14px;
+                font-weight: bold;
+                padding: 6px 10px;
+                border-radius: 4px;
             }
             QLabel#temp_label{
-                font-size: 75px;
+                font-size: 48px;
+                font-weight: bold;
             }
             QLabel#emoji_label{
-                font-size: 100px;
+                font-size: 60px;
                 font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
-                padding-top: 30px;
-                padding-bottom: 30px;
+                padding-top: 10px;
+                padding-bottom: 10px;
             }
             QLabel#discription_label{
-                font-size: 50px;
+                font-size: 20px;
+                font-weight: 500;
             }
             QLabel#advice_label {
-                font-size: 25px;
+                font-size: 16px;
                 font-style: italic;
-                padding-top: 20px;
+                padding-top: 10px;
+                color: #555;
             }
             QPushButton#temp_switch_btn{
-                font-size: 25px;
+                font-size: 16px;
                 font-weight: bold;
-                min-width: 80px;
-                max-width: 80px;
-                min-height: 40px;
-                max-height: 40px;
+                min-width: 60px;
+                max-width: 60px;
+                min-height: 30px;
+                max-height: 30px;
+                border-radius: 4px;
             }
         """)
-        self.setMinimumSize(800, 700)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Set size constraints - similar to Windows 11 Task Manager
+        self.setMinimumSize(320, 280)  # Minimum usable size
+        self.setMaximumSize(800, 600)  # Maximum size (similar to Task Manager)
+
+        # Enable resizing
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
     def set_clothing_advice(self, advice):
         self.advice_label.setText(advice)
@@ -140,7 +156,15 @@ class WeatherUI(QWidget):
     def enable_dark_mode(self):
         try:
             with open(r"C:\Users\Dell\PycharmProjects\Weather\dark", "r", encoding="utf-8") as file:
-                self.setStyleSheet(file.read())
+                dark_css = file.read()
+                # Modify dark CSS for smaller sizes
+                dark_css = dark_css.replace("font-size: 40px;", "font-size: 24px;")  # city_label
+                dark_css = dark_css.replace("font-size: 75px;", "font-size: 48px;")  # temp_label
+                dark_css = dark_css.replace("font-size: 100px;", "font-size: 60px;")  # emoji_label
+                dark_css = dark_css.replace("font-size: 50px;", "font-size: 20px;")  # description_label
+                dark_css = dark_css.replace("font-size: 25px;", "font-size: 16px;")  # advice_label
+                dark_css = dark_css.replace("font-size: 30px;", "font-size: 18px;")  # weather_button
+                self.setStyleSheet(dark_css)
         except FileNotFoundError:
             print("⚠️ Không tìm thấy file dark.css!")
 
@@ -221,28 +245,3 @@ class WeatherUI(QWidget):
                     self.temp_label.setText(f"{fahrenheit_temp:.0f}°F")
             except ValueError:
                 pass  # If conversion fails, do nothing
-'''
-    def toggle_ai(self):
-        """Kích hoạt/tắt AI khi checkbox thay đổi."""
-        self.ai_enabled = self.ai_checkbox.isChecked()
-
-        if self.ai_enabled:
-            self.start_ai_model()  # Khởi tạo và chạy mô hình AI khi bật AI
-        else:
-            self.stop_ai_model()  # Dừng mô hình AI khi tắt AI
-
-    def start_ai_model(self):
-        """Khởi tạo và chạy mô hình AI."""
-        if self.ai_model is None:
-            # Khởi tạo mô hình AI (chỉ khởi tạo khi AI được bật)
-            self.ai_model = AI_Model()  # Thay bằng tên lớp mô hình AI của bạn
-            self.ai_model.run()  # Chạy mô hình nếu cần thiết
-            self.advice_label.setText("AI đã được kích hoạt. Sẵn sàng gợi ý trang phục.")
-
-    def stop_ai_model(self):
-        """Dừng mô hình AI."""
-        if self.ai_model is not None:
-            self.ai_model.stop()  # Dừng mô hình nếu đang chạy
-            self.ai_model = None  # Giải phóng bộ nhớ
-            self.advice_label.clear()
-'''

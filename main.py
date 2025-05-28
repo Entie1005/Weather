@@ -30,6 +30,9 @@ def main():
     view = WeatherUI()
     controller = WeatherController(view)
 
+    # Set a smaller size similar to Windows 11 Task Manager
+    view.resize(480, 360)  # Similar to Task Manager compact view
+
     # Show the window immediately
     view.show()
 
