@@ -5,7 +5,7 @@ import requests
 class WeatherModel:
     def __init__(self):
         self.api = WeatherAPI()
-        self.api_key = "869a845d6eb8ccf49238eb23c944b321Màn hình"
+        self.api_key = "869a845d6eb8ccf49238eb23c944b321"
 
     def get_weather_data(self, city_name):
         try:
